@@ -1,0 +1,13 @@
+[project]
+name = "real-time-decision-pipeline"
+version = "0.1.0"
+description = "Reference architecture for real-time, constraint-governed decision systems."
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "pydantic",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
