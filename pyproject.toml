@@ -11,3 +11,9 @@ dependencies = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "httpx",
+]
