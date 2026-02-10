@@ -1,20 +1,22 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Any
+
+from rtp.core.context import DecisionContext
+from rtp.core.contracts import DecisionResult
 
 
-class Decider(ABC):
+class DecidePattern(ABC):
     """
-    Deciders choose actions *within* the constrained action space.
+    Decide patterns choose an action, using the request + policy + runtime context.
 
     They may use heuristics, rules, optimization, or ranking.
-    But they MUST NOT expand constraints.
+    They MUST NOT weaken constraints (constraints are applied in the constrain stage).
     """
 
-    @abstractmethod
-    def decide(self, constrained_space: Any) -> Any:
-        """
-        Given a constrained action space (bounds/options),
-        return a concrete decision (one or more actions).
-        """
-        raise NotImplementedError
+    name: str  # unique identifier, e.g. "decide.threshold_action"
 
+    @abstractmethod
+    def decide(self, ctx: DecisionContext) -> DecisionResult:
+        """Return the decision result."""
+        raise NotImplementedError
