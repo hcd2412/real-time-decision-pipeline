@@ -6,10 +6,8 @@ from typing import Any, Dict, List
 from rtp.ingest.base import IngestSource
 from rtp.evaluate.base import Evaluator
 from rtp.constrain.base import Constraint
-from rtp.decide.base import Decider
 from rtp.expose.base import Exposer
 from rtp.observe.base import Observer
-from rtp.pipeline.pipeline import DecisionPipeline
 
 
 # -----------------------------
@@ -77,7 +75,7 @@ class BasicTransferConstraint(Constraint):
         )
 
 
-class GreedyDecider(Decider):
+class GreedyDecider:
     def decide(self, constrained_space: ConstrainedSpace) -> List[TransferAction]:
         actions: List[TransferAction] = []
         if not constrained_space.donors or not constrained_space.receivers:
@@ -126,5 +124,40 @@ def main() -> None:
     print(result)
 
 
-if __name__ == "__main__":
-    main()
+# -----------------------------
+# New: Engine + named pattern demo
+# -----------------------------
+def engine_demo() -> None:
+    from rtp.core.contracts import DecisionRequest, Policy
+    from rtp.core.context import DecisionContext
+    from rtp.registry import Registry
+    from rtp.engine import DecisionEngine, EngineConfig
+    from rtp.patterns.decide.threshold_action import ThresholdAction
+
+    registry = Registry()
+    registry.register("decide.threshold_action", ThresholdAction(threshold=0.75))
+
+    engine = DecisionEngine(
+        registry=registry,
+        config=EngineConfig(
+            ingest=[],
+            evaluate=[],
+            constrain=[],
+            decide="decide.threshold_action",
+            observe=[],
+        ),
+    )
+
+    req = DecisionRequest(
+        facts={"user_id": "u1"},
+        features={"score": 0.8},
+        metadata={"trace_id": "t1", "policy_version": "v0"},
+    )
+    ctx = DecisionContext(request=req, policy=Policy(version="v0"), runtime={})
+
+    result = engine.run(ctx)
+    print("ENGINE RESULT:", result)
+
+
+# if __name__ == "__main__":
+#     engine_demo()
